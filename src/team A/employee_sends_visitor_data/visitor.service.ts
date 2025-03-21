@@ -1,15 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { MailService } from 'src/mail/mail.service';
+
 import { Visitor } from "./visitor.entity";
+import { VisitorMailService } from "./visitormail.service";
 
 @Injectable()
 export class VisitorService {
     constructor(
         @InjectRepository(Visitor) 
         private visitorRepository: Repository<Visitor>,
-        private mailService: MailService
+        private visitorMailService: VisitorMailService
     ) {}
 
     // Create a new visitor record and send registration email
@@ -29,7 +30,7 @@ export class VisitorService {
     
         try {
             console.log("Sending email to:", savedVisitor.email); // Debugging log
-            await this.mailService.sendRegistrationEmail(savedVisitor.email, savedVisitor.firstName, savedVisitor.id); 
+            await this.visitorMailService.sendVisitorQRCode(savedVisitor); 
         } catch (error) {
             console.error("Email sending failed:", error);
         }
