@@ -4,6 +4,9 @@ import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
+  sendAppointmentEmail(visitorEmail: string, date: string, allocatedTime: string) {
+    throw new Error('Method not implemented.');
+  }
   private transporter;
 
   constructor() {

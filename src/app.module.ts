@@ -8,6 +8,7 @@ import { HttpModule } from '@nestjs/axios';
 import * as https from 'https';
 import { MailModule } from './mail/mail.module';
 import { VisitorModule } from './team A/employee_sends_visitor_data/visitor.module';
+import { AppointmentModule } from './team B/appointment/appointment.module';
 
 
 @Module({
@@ -28,6 +29,7 @@ import { VisitorModule } from './team A/employee_sends_visitor_data/visitor.modu
     AuthModule,
     MailModule,
     VisitorModule,
+    AppointmentModule,
     
     
   ],
