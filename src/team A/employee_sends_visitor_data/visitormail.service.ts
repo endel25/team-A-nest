@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import * as nodemailer from "nodemailer";
 import * as QRCode from "qrcode";
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas } from "canvas";
 import { Visitor } from "./visitor.entity";
 import * as fs from "fs";
 import * as path from "path";
@@ -12,12 +12,12 @@ export class VisitorMailService {
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: 'minimilitia1491@gmail.com',
-          pass: 'haettvpiejqojvyk', 
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'minimilitia1491@gmail.com',
+        pass: 'haettvpiejqojvyk',// Use an App Password instead of your actual password
       },
     });
   }
@@ -30,9 +30,25 @@ export class VisitorMailService {
       const date = visitor.date || "No Date Provided";
       const time = visitor.allocationTime || "No Time Provided";
 
-      const qrData = JSON.stringify({ name, email, phone, date, time });
+// Well-formatted QR content with better styling
+const qrData = `
+🟦══════════════════════════🟦
+        🎫 *VISITOR PASS*        
+🟦══════════════════════════🟦
+👤 *Name:*  ${name}           
+✉️ *Email:*  ${email}         
+📞 *Phone:*  ${phone}         
+📅 *Date:*  ${date}         
+⏰ *Time:*  ${time}         
+🟦══════════════════════════🟦
+✅ *Show this pass at entry*  
+📍 *Thank you for visiting!*  
+🟦══════════════════════════🟦
+`;
 
-      // Create canvas for designing QR layout
+
+
+      // Create a canvas for designing the Visitor Pass
       const canvas = createCanvas(400, 500);
       const ctx = canvas.getContext("2d");
 
@@ -40,7 +56,7 @@ export class VisitorMailService {
       ctx.fillStyle = "#B3E5FC"; // Light Blue
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Visitor Pass text
+      // Header Text
       ctx.fillStyle = "black";
       ctx.font = "bold 24px Arial";
       ctx.textAlign = "center";
@@ -56,18 +72,14 @@ export class VisitorMailService {
       // Instruction text
       ctx.fillStyle = "black";
       ctx.font = "bold 16px Arial";
-      ctx.fillText(
-        "Please show this QR code at the entrance",
-        canvas.width / 2,
-        450
-      );
+      ctx.fillText("Please show this QR code at the entrance", canvas.width / 2, 450);
 
-      // Save the final image
+      // Save final QR image
       const qrCodeFilePath = path.join(__dirname, `visitor-${visitor.id}.png`);
       const buffer = canvas.toBuffer("image/png");
       fs.writeFileSync(qrCodeFilePath, buffer);
 
-      // Email options
+      // Email Configuration
       const mailOptions = {
         from: "minimilitia1491@gmail.com",
         to: visitor.email,
@@ -90,7 +102,7 @@ export class VisitorMailService {
       await this.transporter.sendMail(mailOptions);
       console.log(`QR code email successfully sent to ${visitor.email}`);
 
-      // Delete the temporary file
+      // Delete the temporary QR file after sending
       fs.unlinkSync(qrCodeFilePath);
     } catch (error) {
       console.error("Failed to send QR code email:", error);
